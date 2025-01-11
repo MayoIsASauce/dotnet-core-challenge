@@ -76,13 +76,5 @@ namespace CodeChallenge.Controllers
             
             return Ok(new ReportingStructure(employee));
         }
-
-        [HttpGet("test")]
-        public IActionResult f()
-        {
-            var key = "16a596ae-edd3-4847-99fe-c4518e82c86f";
-            
-            return Ok(_employeeService.GetById(key));
-        }
     }
 }
