@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace CodeChallenge.Data
 {
@@ -12,7 +14,10 @@ namespace CodeChallenge.Data
     {
         private EmployeeContext _employeeContext;
         private const String EMPLOYEE_SEED_DATA_FILE = "resources/EmployeeSeedData.json";
-
+        
+        // init reference data which is used later to persist the directreports
+        public Dictionary<String, List<String>> refData = new Dictionary<string, List<string>>();
+        
         public EmployeeDataSeeder(EmployeeContext employeeContext)
         {
             _employeeContext = employeeContext;
@@ -20,11 +25,95 @@ namespace CodeChallenge.Data
 
         public async Task Seed()
         {
-            if(!_employeeContext.Employees.Any())
+            if (!_employeeContext.Employees.Any())
             {
                 List<Employee> employees = LoadEmployees();
-                _employeeContext.Employees.AddRange(employees);
 
+                foreach (var employee in employees)
+                {
+                    if (employee.DirectReports == null)
+                    {
+                        // init blank data
+                        employee.DirectReports = new List<Employee>();
+                    }
+                    
+                    
+                    List<String> reports = new(); // list of reports to store for employee
+                    foreach (var report in employee.DirectReports)
+                    {
+                        if (report == null)
+                        {
+                            continue;
+                        }
+                        
+                        reports.Add(report.EmployeeId);
+                        
+                        // This is my attempt at fixing the aggregation issues
+                        // I believe that this solution is so close to what I need to fix
+                        // I just could not for the life of me figure this beast out
+                        
+                        // fetch the report from the context to verify existence
+                        var trackedReport = _employeeContext.Employees.Local
+                            .FirstOrDefault(e => e.EmployeeId == report.EmployeeId);
+
+                        if (trackedReport == null)
+                        {
+                            var existingReport = await _employeeContext.Employees
+                                .FirstOrDefaultAsync(e => e.EmployeeId == report.EmployeeId);
+
+                            if (existingReport != null)
+                            {
+                                // update report in context
+                                _employeeContext.Entry(existingReport).CurrentValues.SetValues(report);
+                            }
+                            else
+                            {
+                                // add report to context
+                                _employeeContext.Employees.Add(report);
+                            }
+                        }
+                        else
+                        {
+                            // update the report in the context
+                            _employeeContext.Entry(trackedReport).CurrentValues.SetValues(report);
+                        }
+                    }
+                    
+                    refData.Add(employee.EmployeeId, reports);
+
+                    // Check that the employee from the context matches ours
+                    var trackedEmployee = _employeeContext.Employees.Local
+                        .FirstOrDefault(e => e.EmployeeId == employee.EmployeeId);
+
+                    if (trackedEmployee == null)
+                    {
+                        // create employee
+                        _employeeContext.Employees.Add(employee);
+                    }
+                    else
+                    {
+                        // update employee
+                        _employeeContext.Entry(trackedEmployee).CurrentValues.SetValues(employee);
+                    }
+                        
+                    // A lot of the errors I was having came from right here
+                    // I couldn't figure out why the trackedEmployee was still
+                    // null?
+                    
+                    // link the direct report if the tracked employee is found
+                    if (trackedEmployee != null && employee.DirectReports != null && employee.DirectReports.Any())
+                    {
+                        foreach (var report in employee.DirectReports)
+                        {
+                            if (!trackedEmployee.DirectReports.Contains(report))
+                            {
+                                // ensure unique values
+                                trackedEmployee.DirectReports.Add(report);
+                            }
+                        }
+                    }
+                }
+                
                 await _employeeContext.SaveChangesAsync();
             }
         }
@@ -38,31 +127,26 @@ namespace CodeChallenge.Data
                 JsonSerializer serializer = new JsonSerializer();
 
                 List<Employee> employees = serializer.Deserialize<List<Employee>>(jr);
-                FixUpReferences(employees);
 
                 return employees;
             }
         }
 
-        private void FixUpReferences(List<Employee> employees)
+        private void CreateRefData(List<Employee> employees)
         {
-            var employeeIdRefMap = from employee in employees
-                                select new { Id = employee.EmployeeId, EmployeeRef = employee };
-
-            employees.ForEach(employee =>
+            foreach (var e in employees)
             {
-                
-                if (employee.DirectReports != null)
+                if (e.DirectReports == null) continue;
+                    
+                List<String> values = new();
+                foreach (var report in e.DirectReports)
                 {
-                    var referencedEmployees = new List<Employee>(employee.DirectReports.Count);
-                    employee.DirectReports.ForEach(report =>
-                    {
-                        var referencedEmployee = employeeIdRefMap.First(e => e.Id == report.EmployeeId).EmployeeRef;
-                        referencedEmployees.Add(referencedEmployee);
-                    });
-                    employee.DirectReports = referencedEmployees;
+                    values.Add(report.EmployeeId);
                 }
-            });
+                
+                refData.Add(e.EmployeeId, values);
+            }
         }
+        
     }
 }
