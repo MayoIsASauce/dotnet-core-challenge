@@ -11,9 +11,7 @@ namespace CodeChallenge.models
         private int CountReportsRecur(Employee employee)
         {
             if (employee.DirectReports == null || employee.DirectReports.Count == 0)
-            {
                 return 0;
-            }
 
             int reports = 0;
             foreach (var e in employee.DirectReports)

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CodeChallenge.Services;
 using CodeChallenge.Models;
+using CodeChallenge.Repositories;
 
 namespace CodeChallenge.Controllers
 {
@@ -16,11 +17,15 @@ namespace CodeChallenge.Controllers
     {
         private readonly ILogger _logger;
         private readonly IEmployeeService _employeeService;
+        private readonly IReferenceRepository _referenceService;
 
-        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService)
+        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeService, IReferenceRepository referenceService)
         {
             _logger = logger;
             _employeeService = employeeService;
+            _referenceService = referenceService;
+            
+            _employeeService.SetRefRepo(_referenceService);
         }
 
         [HttpPost]
@@ -60,8 +65,8 @@ namespace CodeChallenge.Controllers
             return Ok(newEmployee);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult getEmployeeReportingStructure(String id)
+        [HttpGet("reports/{id}")]
+        public IActionResult GetEmployeeReportingStructure(String id)
         {
             _logger.LogDebug($"Received request for ReportingStructure for '{id}'");
 
@@ -70,6 +75,14 @@ namespace CodeChallenge.Controllers
                 return NotFound();
             
             return Ok(new ReportingStructure(employee));
+        }
+
+        [HttpGet("test")]
+        public IActionResult f()
+        {
+            var key = "16a596ae-edd3-4847-99fe-c4518e82c86f";
+            
+            return Ok(_employeeService.GetById(key));
         }
     }
 }
