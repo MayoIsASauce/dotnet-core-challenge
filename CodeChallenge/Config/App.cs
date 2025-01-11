@@ -49,6 +49,9 @@ namespace CodeChallenge.Config
             services.AddScoped<IReferenceRepository>(provider =>
                 new ReferenceRepository(initRefData)
             );
+            services.AddScoped<ICompensationService, CompensationService>();
+            services.AddScoped<ICompensationRepository, CompensationRepository>();
+
 
             services.AddControllers();
         }
