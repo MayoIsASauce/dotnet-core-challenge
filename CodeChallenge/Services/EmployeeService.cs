@@ -60,6 +60,7 @@ namespace CodeChallenge.Services
                     // get the direct reports and join them to the data
                     e.DirectReports = GetByIds(_referenceRepository.FetchAll(e.EmployeeId));
                 }
+
                 return e;
             }
             

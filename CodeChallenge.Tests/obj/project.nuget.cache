@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ej2STrx4uaA=",
+  "dgSpecHash": "mVeTQlUXePo=",
   "success": true,
   "projectFilePath": "/Users/gnome/Desktop/Projects/dotnet-code-challenge/CodeChallenge.Tests/CodeChallenge.Tests.Integration.csproj",
   "expectedPackageFiles": [
@@ -48,7 +48,7 @@
     "/Users/gnome/.nuget/packages/microsoft.testplatform.testhost/17.2.0/microsoft.testplatform.testhost.17.2.0.nupkg.sha512",
     "/Users/gnome/.nuget/packages/mstest.testadapter/2.2.10/mstest.testadapter.2.2.10.nupkg.sha512",
     "/Users/gnome/.nuget/packages/mstest.testframework/2.2.10/mstest.testframework.2.2.10.nupkg.sha512",
-    "/Users/gnome/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/Users/gnome/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/gnome/.nuget/packages/nuget.frameworks/5.11.0/nuget.frameworks.5.11.0.nupkg.sha512",
     "/Users/gnome/.nuget/packages/runtime.native.system/4.3.0/runtime.native.system.4.3.0.nupkg.sha512",
     "/Users/gnome/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
