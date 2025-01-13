@@ -93,6 +93,13 @@ namespace CodeChallenge.Services
             if(originalEmployee != null)
             {
                 _employeeRepository.Remove(originalEmployee);
+                // if the original employee has direct reports
+                if (_referenceRepository.HasEntries(originalEmployee.EmployeeId))
+                {
+                    // remove them from the table
+                    _referenceRepository.RemoveAll(originalEmployee.EmployeeId);
+                }
+                
                 if (newEmployee != null)
                 {
                     // ensure the original has been removed, otherwise EF will complain another entity w/ same id already exists
@@ -101,13 +108,6 @@ namespace CodeChallenge.Services
                     _employeeRepository.Add(newEmployee);
                     // overwrite the new id with previous employee id
                     newEmployee.EmployeeId = originalEmployee.EmployeeId;
-                    
-                    // if the original employee has direct reports
-                    if (_referenceRepository.HasEntries(originalEmployee.EmployeeId))
-                    {
-                        // remove them from the table
-                        _referenceRepository.RemoveAll(originalEmployee.EmployeeId);
-                    }
                     
                     // update the table with the new records
                     foreach (var e in newEmployee.DirectReports)
