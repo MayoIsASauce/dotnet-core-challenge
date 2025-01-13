@@ -16,6 +16,11 @@ public class ReferenceRepository : IReferenceRepository
     {
         _referenceMap = de;
     }
+    
+    public ReferenceRepository()
+    {
+        _referenceMap = new Dictionary<string, List<string>>();
+    }
 
     public bool HasEntries(String key)
     {

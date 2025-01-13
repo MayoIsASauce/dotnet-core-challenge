@@ -20,6 +20,7 @@ namespace CodeChallenge.Services
         {
             _employeeRepository = employeeRepository;
             _logger = logger;
+            _referenceRepository = new ReferenceRepository();
         }
 
         public void SetRefRepo(IReferenceRepository refRepo)

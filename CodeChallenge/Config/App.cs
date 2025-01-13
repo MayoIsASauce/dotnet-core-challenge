@@ -14,7 +14,7 @@ namespace CodeChallenge.Config
     public class App
     {
         // Fix for bringing the reference data to the EmployeeService bundle
-        private Dictionary<string, List<string>> initRefData;
+        private Dictionary<string, List<string>> initRefData = new Dictionary<string, List<string>>();
         public WebApplication Configure(string[] args)
         {
             args ??= Array.Empty<string>();
